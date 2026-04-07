@@ -1,0 +1,1 @@
+# IA-DE-GERA-O-DE-IMAGEM
