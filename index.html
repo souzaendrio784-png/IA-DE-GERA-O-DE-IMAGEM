@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-5">
+
+    <div class="max-w-xl w-full bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700">
+        <h1 class="text-3xl font-bold mb-2 text-center text-blue-400">AI Image Generator</h1>
+        <p class="text-gray-400 text-center mb-6">Digite uma ideia e deixe a IA criar</p>
+
+        <div class="space-y-4">
+            <textarea id="prompt" rows="3" 
+                class="w-full p-4 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none text-white placeholder-gray-500"
+                placeholder="Ex: Um astronauta andando a cavalo em Marte, estilo cyberpunk..."></textarea>
+            
+            <button onclick="generateImage()" id="btn-generate"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-300 flex justify-center items-center gap-3">
+                <span>Gerar Imagem</span>
+                <div id="loader" class="loader"></div>
+            </button>
+        </div>
+
+        <div class="mt-8 flex justify-center">
+            <div id="result-container" class="hidden relative group">
+                <img id="output-image" class="rounded-lg shadow-lg max-w-full h-auto border-4 border-gray-700" src="" alt="Imagem gerada">
+                <a id="download-btn" href="#" download="ai-image.jpg" 
+                   class="absolute bottom-4 right-4 bg-green-600 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                   💾 Baixar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generateImage() {
+            const prompt = document.getElementById('prompt').value;
+            const imgElement = document.getElementById('output-image');
+            const resultContainer = document.getElementById('result-container');
+            const loader = document.getElementById('loader');
+            const btnText = document.querySelector('#btn-generate span');
+
+            if (!prompt) {
+                alert("Por favor, descreva a imagem primeiro!");
+                return;
+            }
+
+            // Interface em estado de carregamento
+            loader.style.display = "block";
+            btnText.innerText = "Gerando...";
+            resultContainer.classList.add('hidden');
+
+            // Criar URL da API (Pollinations.ai usa GET para imagens)
+            // Codificamos o prompt para evitar erros com espaços e caracteres especiais
+            const encodedPrompt = encodeURIComponent(prompt);
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
+
+            // Pré-carregamento da imagem
+            const img = new Image();
+            img.src = imageUrl;
+            img.onload = () => {
+                imgElement.src = imageUrl;
+                document.getElementById('download-btn').href = imageUrl;
+                resultContainer.classList.remove('hidden');
+                loader.style.display = "none";
+                btnText.innerText = "Gerar Imagem";
+            };
+            
+            img.onerror = () => {
+                alert("Erro ao gerar imagem. Tente novamente.");
+                loader.style.display = "none";
+                btnText.innerText = "Gerar Imagem";
+            };
+        }
+    </script>
+</body>
+</html>
